@@ -23,7 +23,11 @@ To install the two binaries produces by this repository:
     curl https://glide.sh/get | sh
     ```
     Or get a binary from the [glide releases] page.
-3. `git clone` this repository to a directory of your liking.
+3. Fetch this repository:
+    ```
+    go get github.com/mrd0ll4r/pyme
+    ```
+    This will fetch the repository to `$GOPATH/src/github.com/mrd0ll4r/pyme`.
 4. Navigate to the directory and execute
     ```
     glide install
