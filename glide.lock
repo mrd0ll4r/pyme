@@ -1,0 +1,22 @@
+hash: e37cb0feb08b20f9fe0bd3f8b6ec93b8d335c97b5466442fd75bd1488165947d
+updated: 2016-09-06T12:50:45.134046372-04:00
+imports:
+- name: github.com/hashicorp/go.net
+  version: 104dcad90073cd8d1e6828b2af19185b60cf3e29
+  subpackages:
+  - internal/iana
+  - ipv4
+  - ipv6
+- name: github.com/hashicorp/mdns
+  version: 9d85cf22f9f8d53cb5c81c1b2749f438b2ee333f
+- name: github.com/julienschmidt/httprouter
+  version: 8c199fb6259ffc1af525cc3ad52ee60ba8359669
+- name: github.com/miekg/dns
+  version: db96a2b759cdef4f11a34506a42eb8d1290c598e
+- name: github.com/mitchellh/go-homedir
+  version: 756f7b183b7ab78acdbbee5c7f392838ed459dda
+- name: github.com/pkg/errors
+  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
+- name: gopkg.in/yaml.v2
+  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+testImports: []
