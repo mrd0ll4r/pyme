@@ -17,6 +17,7 @@ type ConfigFile struct {
 		HTTPEndpoint       string             `yaml:"http_endpoint"`
 		HTTPPrintDebugLogs bool               `yaml:"http_print_debug_logs"`
 		DistributorConfig  distributor.Config `yaml:"logic"`
+		UseMDNS            bool               `yaml:"use_mdns"`
 	} `yaml:"distributor"`
 }
 
