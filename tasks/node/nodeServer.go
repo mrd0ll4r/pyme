@@ -153,7 +153,7 @@ func (t *nodeServerLogic) Stop() {
 }
 
 func (t *nodeServerLogic) RateTask(task tasks.Task) (tasks.TaskRating, error) {
-	calc, ok := t.calculators[strings.ToLower(task.Type)]
+	calc, ok := t.calculators[tasks.TaskType(strings.ToLower(string(task.Type)))]
 	if !ok {
 		return tasks.TaskRating{}, ErrNoMatchingCalculator
 	}
@@ -274,7 +274,7 @@ breakfor:
 }
 
 func (t *nodeServerLogic) getTasksFromEndpoint(endpoint tasks.Endpoint) ([]tasks.Task, error) {
-	var tasks []tasks.Task
+	var taskList []tasks.Task
 	err := tasks.MakeHTTPAPIRequest(t.c,
 		endpoint,
 		tasks.DistributorGetTasks,
@@ -282,12 +282,12 @@ func (t *nodeServerLogic) getTasksFromEndpoint(endpoint tasks.Endpoint) ([]tasks
 			"nodeID":  []string{string(t.id)},
 			"numWant": []string{fmt.Sprint(t.cfg.NumWantTasks)}},
 		nil,
-		&tasks)
+		&taskList)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to request tasks from distributor")
 	}
 
-	return tasks, nil
+	return taskList, nil
 }
 
 func (t *nodeServerLogic) markRunning(task tasks.Task) error {

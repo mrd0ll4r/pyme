@@ -311,15 +311,15 @@ func (n *node) rateLoop() {
 }
 
 func (n *node) flushRatingRequests(requests []ratingRequest) error {
-	tasks := make([]tasks.Task, 0, len(requests))
+	taskList := make([]tasks.Task, 0, len(requests))
 	for _, req := range requests {
-		tasks = append(tasks, req.task)
+		taskList = append(taskList, req.task)
 	}
 
 	ratings := make([]tasks.TaskRating, 0, len(requests))
 
 	n.RLock()
-	err := tasks.MakeHTTPAPIRequest(n.c, tasks.Endpoint{IP: n.ip, Port: n.port}, tasks.NodeServerPostRate, nil, tasks, &ratings)
+	err := tasks.MakeHTTPAPIRequest(n.c, tasks.Endpoint{IP: n.ip, Port: n.port}, tasks.NodeServerPostRate, nil, taskList, &ratings)
 	n.RUnlock()
 	if err != nil {
 		return errors.Wrap(err, "unable to perform rating request")
