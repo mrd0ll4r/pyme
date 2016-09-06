@@ -110,12 +110,9 @@ func main() {
 
 	// remove duplicates
 	filteredEndpoints := make([]tasks.Endpoint, 0)
-	for i, ep := range distributors {
+	for _, ep := range distributors {
 		dup := false
-		for j, other := range distributors {
-			if i == j {
-				continue
-			}
+		for _, other := range filteredEndpoints {
 			if ep.IP.Equal(other.IP) {
 				dup = true
 				break
