@@ -18,22 +18,30 @@ To install the two binaries produces by this repository:
     Get Go from the [Download Go] page.
     Install Go as per the [Installation Instructions].
     Set your `$GOPATH`, add `$GOPATH/bin` and the Go binaries to your `$PATH`.
+
 2. You must have glide installed:
+
     ```
     curl https://glide.sh/get | sh
     ```
     Or get a binary from the [glide releases] page.
+
 3. Fetch this repository:
+
     ```
     go get github.com/mrd0ll4r/pyme
     ```
     This will fetch the repository to `$GOPATH/src/github.com/mrd0ll4r/pyme`.
+
 4. Navigate to the directory and execute
+
     ```
     glide install
     ```
     This will create and populate the `vendor/` directory with dependencies.
+
 5. Install the binaries:
+
     ```
     go install ./cmd/distributor
     go install ./cmd/nodeserver
