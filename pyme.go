@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/mrd0ll4r/pyme/random"
 )
 
