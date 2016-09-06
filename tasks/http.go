@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"time"
 
+	"net"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
@@ -169,10 +171,18 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 
 	var (
 		resp *http.Response
+		u    *url.URL
 		err  error
 	)
 
-	u, err := url.Parse(fmt.Sprintf("http://%s:%d%s", endpoint.IP.String(), endpoint.Port, string(apiMethod.Path)))
+	if len(endpoint.IP) == net.IPv4len {
+		u, err = url.Parse(fmt.Sprintf("http://%s:%d%s", endpoint.IP.String(), endpoint.Port, string(apiMethod.Path)))
+	} else if len(endpoint.IP) == net.IPv6len {
+		u, err = url.Parse(fmt.Sprintf("http://[%s]:%d%s", endpoint.IP.String(), endpoint.Port, string(apiMethod.Path)))
+	} else {
+		return ErrInvalidIP
+	}
+
 	if err != nil {
 		return errors.Wrap(err, "unable to build URL")
 	}
