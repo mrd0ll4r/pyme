@@ -187,7 +187,7 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 	case http.MethodPost:
 		if payload != nil {
 			bb := &bytes.Buffer{}
-			err := json.NewEncoder(bb).Encode(payload)
+			err = json.NewEncoder(bb).Encode(payload)
 			if err != nil {
 				return errors.Wrap(err, "unable to encode payload")
 			}

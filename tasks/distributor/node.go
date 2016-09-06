@@ -23,9 +23,9 @@ type ratingRequest struct {
 }
 
 type node struct {
-	id             pyme.NodeID
-	ip             net.IP
-	port           uint16
+	id   pyme.NodeID
+	ip   net.IP
+	port uint16
 
 	taskQueue      []tasks.Task
 	givenOut       map[tasks.TaskID]tasks.Task
@@ -34,16 +34,16 @@ type node struct {
 	c              *http.Client
 
 	// announce is to be fed with announces
-	announce       chan time.Time
+	announce chan time.Time
 
 	// timeout will be closed if the node times out
-	timeoutChan    chan struct{}
+	timeoutChan chan struct{}
 
 	// isInactive is closed while the node is inactive
 	isInactive     chan struct{}
 	activityChange sync.RWMutex
 
-	cfg            Config
+	cfg Config
 
 	sync.RWMutex
 }
