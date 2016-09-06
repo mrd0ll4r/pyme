@@ -97,18 +97,22 @@ func main() {
 		distributors = append(distributors, tasks.Endpoint{IP: ips[0], Port: uint16(p)})
 	}
 
-	endpoints, err := tasks.DiscoverDistributors()
-	if err != nil {
-		log.Println(errors.Wrap(err, "unable to look up distributors using mDNS"))
+	if configFile.MainConfigBlock.UseMDNS {
+		endpoints, err := tasks.DiscoverDistributors()
+		if err != nil {
+			log.Println(errors.Wrap(err, "unable to look up distributors using mDNS"))
+		} else {
+			distributors = append(distributors, endpoints...)
+		}
 	} else {
-		distributors = append(distributors, endpoints...)
+		log.Println("not using mDNS")
 	}
 
 	// remove duplicates
 	filteredEndpoints := make([]tasks.Endpoint, 0)
 	for i, ep := range distributors {
 		dup := false
-		for j, other := range endpoints {
+		for j, other := range distributors {
 			if i == j {
 				continue
 			}

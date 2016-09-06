@@ -20,6 +20,7 @@ type ConfigFile struct {
 		ManualDistributors     []string                     `yaml:"distributors"`
 		PYMCClusterRaterConfig rater.PYMEClusterRaterConfig `yaml:"pyme_cluster_rater"`
 		NodeServerConfig       nodeserver.Config            `yaml:"logic"`
+		UseMDNS                bool                         `yaml:"use_mdns"`
 	} `yaml:"nodeserver"`
 }
 

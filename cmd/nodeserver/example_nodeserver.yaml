@@ -1,6 +1,7 @@
 nodeserver:
   http_endpoint: 0.0.0.0:1337
   http_print_debug_logs: false
+  use_mdns: false
   distributors:
   - 10.150.7.1:1234
   pyme_cluster_rater:

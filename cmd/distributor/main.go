@@ -82,11 +82,15 @@ func main() {
 		}
 	}()
 
-	mdnsServer, err := tasks.PublishDistributor(uint16(port))
-	if err != nil {
-		log.Fatal(err)
+	if configFile.MainConfigBlock.UseMDNS {
+		mdnsServer, err := tasks.PublishDistributor(uint16(port))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer mdnsServer.Shutdown()
+	} else {
+		log.Println("not using mDNS")
 	}
-	defer mdnsServer.Shutdown()
 
 	shutdown := make(chan os.Signal)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)

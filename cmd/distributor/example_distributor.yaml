@@ -1,6 +1,7 @@
 distributor:
   http_endpoint: 0.0.0.0:1234
   http_print_debug_logs: false
+  use_mdns: false
   logic:
     max_allowed_fails: 5
     node_timeout: 10s
