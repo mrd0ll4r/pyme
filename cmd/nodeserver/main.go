@@ -16,7 +16,7 @@ import (
 	"github.com/mrd0ll4r/pyme"
 	"github.com/mrd0ll4r/pyme/tasks"
 	"github.com/mrd0ll4r/pyme/tasks/calculator"
-	"github.com/mrd0ll4r/pyme/tasks/node"
+	"github.com/mrd0ll4r/pyme/tasks/nodeserver"
 	"github.com/mrd0ll4r/pyme/tasks/rater"
 )
 
@@ -138,7 +138,7 @@ func main() {
 
 	}
 
-	nodeServer, err := node.NewNodeServerLogic(
+	nodeServer, err := nodeserver.NewNodeServerLogic(
 		nodeID,
 		[]tasks.Calculator{localizationCalculator},
 		filteredEndpoints,

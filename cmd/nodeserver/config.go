@@ -7,7 +7,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/mrd0ll4r/pyme/tasks/node"
+	"github.com/mrd0ll4r/pyme/tasks/nodeserver"
 	"github.com/mrd0ll4r/pyme/tasks/rater"
 )
 
@@ -19,7 +19,7 @@ type ConfigFile struct {
 		HTTPPrintDebugLogs     bool                         `yaml:"http_print_debug_logs"`
 		ManualDistributors     []string                     `yaml:"distributors"`
 		PYMCClusterRaterConfig rater.PYMEClusterRaterConfig `yaml:"pyme_cluster_rater"`
-		NodeServerConfig       node.Config                  `yaml:"logic"`
+		NodeServerConfig       nodeserver.Config            `yaml:"logic"`
 	} `yaml:"nodeserver"`
 }
 

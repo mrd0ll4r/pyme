@@ -1,4 +1,4 @@
-package node
+package nodeserver
 
 import (
 	"fmt"
