@@ -12,6 +12,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 
+	"fmt"
+
 	"github.com/mrd0ll4r/pyme"
 )
 
@@ -21,6 +23,11 @@ type returnFormat int
 const (
 	JSON returnFormat = iota
 	BSON
+)
+
+var (
+	emptyIPv4 = net.IP([]byte{0, 0, 0, 0})
+	emptyIPv6 = net.IP([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 )
 
 // responseFunc is a function that handles an API request and returns an HTTP
@@ -243,8 +250,16 @@ func (s *HTTPDistributorServer) handlePostAnnounce(r *http.Request, p httprouter
 	}
 
 	ip, err := getIP(r)
-	if err != nil {
-		return 400, nil, errors.Wrap(err, "unable to determine node IP")
+	if err != nil || ip.Equal(emptyIPv4) || ip.Equal(emptyIPv6) {
+		// no IP, invalid IP or empty IP
+		ipString, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			return 400, nil, errors.Wrap(err, "unable to determine node IP")
+		}
+		ip = net.ParseIP(ipString)
+		if len(ip) == 0 {
+			panic(fmt.Sprintf("unable to parse HTTP RemoteAddr %q", r.RemoteAddr))
+		}
 	}
 
 	port, err := getPort(r)
