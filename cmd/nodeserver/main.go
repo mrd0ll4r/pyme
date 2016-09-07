@@ -75,7 +75,7 @@ func main() {
 	pymeClusterRater := rater.NewPYMEClusterRater(configFile.MainConfigBlock.PYMCClusterRaterConfig)
 	localizationCalculator := calculator.NewLocalizationCalculator([]tasks.Rater{pymeClusterRater})
 
-	distributors := make([]tasks.Endpoint, 0)
+	var distributors []tasks.Endpoint
 	for _, addr := range configFile.MainConfigBlock.ManualDistributors {
 		host, port, err := net.SplitHostPort(addr)
 		if err != nil {
@@ -109,7 +109,7 @@ func main() {
 	}
 
 	// remove duplicates
-	filteredEndpoints := make([]tasks.Endpoint, 0)
+	var filteredEndpoints []tasks.Endpoint
 	for _, ep := range distributors {
 		dup := false
 		for _, other := range filteredEndpoints {
