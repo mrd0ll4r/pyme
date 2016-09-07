@@ -350,10 +350,9 @@ func (t *distributorLogic) assignLoop() {
 		err := node.enqueue(ratedTask.task)
 		t.nodesLock.RUnlock()
 		if err != nil {
-			// node inactive, try again
-			log.Println("enqueue on inactive node failed, redistributing one task")
+			log.Printf("enqueue for task %s on node %s failed with %q, redistributing one task", ratedTask.task.ID, bestNode, err.Error())
 
-			// has to be re-rated with the inactive node out of the picture
+			// has to be re-rated with the possibly inactive node out of the picture
 			t.incomingTasks <- ratedTask.task
 		}
 	}
