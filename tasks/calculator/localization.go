@@ -44,7 +44,7 @@ func (c *localizationCalculator) Calculate(t tasks.Task) (float64, error) {
 	if err != nil {
 		return 0, errors.Wrap(err, "unable to parse frames URI")
 	}
-	rater, ok := c.raters[parsedFramesURI.Scheme]
+	rater, ok := c.raters[strings.ToLower(parsedFramesURI.Scheme)]
 	if !ok {
 		log.Printf("localization calculator: unknown scheme %q", parsedFramesURI.Scheme)
 		return -1, nil
