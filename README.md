@@ -15,6 +15,7 @@ We use [glide] for dependency management.
 To install the two binaries produces by this repository:
 
 1. You must have a working go 1.7+ installation:
+
     Get Go from the [Download Go] page.
     Install Go as per the [Installation Instructions].
     Set your `$GOPATH`, add `$GOPATH/bin` and the Go binaries to your `$PATH`.
