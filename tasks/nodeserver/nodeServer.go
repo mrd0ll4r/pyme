@@ -133,12 +133,16 @@ func NewNodeServerLogic(id pyme.NodeID, calculators []tasks.Calculator, distribu
 func (t *nodeServerLogic) collectGarbage(cutoff time.Time) {
 	t.runningTasksLock.Lock()
 	defer t.runningTasksLock.Unlock()
+	log.Printf("running GC, collecting tasks given out before %s", cutoff.String())
+	collected := 0
 	for id, task := range t.runningTasks {
 		if task.timestamp.Before(cutoff) {
 			delete(t.runningTasks, id)
 			t.handInsToReport <- handInEntry{taskID: id, status: tasks.NotExecuted}
+			collected++
 		}
 	}
+	log.Printf("GC finished, handed in %d tasks as not executed", collected)
 }
 
 func (t *nodeServerLogic) Stop() {
@@ -257,11 +261,10 @@ request:
 			log.Println(err)
 		}
 		if len(tasks) > 0 {
-			goto breakfor
+			break
 		}
 	}
 
-breakfor:
 	if len(tasks) == 0 {
 		time.Sleep(time.Second)
 		goto request
@@ -398,11 +401,10 @@ func (t *nodeServerLogic) flushHandinsByDistributor(handins []handInEntry, distr
 		serializableHandins = append(serializableHandins, tasks.SerializableHandInEntry{TaskID: h.taskID, ExecutionStatus: string(h.status)})
 	}
 
-	err := tasks.MakeHTTPAPIRequest(t.c,
+	return tasks.MakeHTTPAPIRequest(t.c,
 		ep,
 		tasks.DistributorPostHandIn,
 		url.Values{"nodeID": []string{string(t.id)}},
 		serializableHandins,
 		nil)
-	return err
 }
