@@ -21,6 +21,7 @@ type ConfigFile struct {
 		PYMCClusterRaterConfig rater.PYMEClusterRaterConfig `yaml:"pyme_cluster_rater"`
 		NodeServerConfig       nodeserver.Config            `yaml:"logic"`
 		UseMDNS                bool                         `yaml:"use_mdns"`
+		AnnounceIP             string                       `yaml:"announce_ip"`
 	} `yaml:"nodeserver"`
 }
 
