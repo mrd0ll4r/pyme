@@ -127,23 +127,35 @@ func main() {
 		log.Fatal("have no distributors")
 	}
 
-	localIPs, err := tasks.GetNonLoopbackIPs()
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "unable to determine own IP"))
-	}
-	if len(localIPs) == 0 {
-		log.Fatal("unable to determine at least one local IP")
-	}
-	if len(localIPs) > 1 {
-		log.Printf("discovered %d local IPs, will use %s to announce", len(localIPs), localIPs[0].String())
+	var announceIP net.IP
 
+	if configFile.MainConfigBlock.AnnounceIP != "" {
+		announceIP = net.ParseIP(configFile.MainConfigBlock.AnnounceIP)
+		if len(announceIP) == 0 {
+			log.Fatal("unable to parse announce IP")
+		}
+	} else {
+		log.Println("guessing announce IP")
+		localIPs, err := tasks.GetNonLoopbackIPs()
+		if err != nil {
+			log.Fatal(errors.Wrap(err, "unable to determine own IP"))
+		}
+		if len(localIPs) == 0 {
+			log.Fatal("unable to determine at least one local IP")
+		}
+		if len(localIPs) > 1 {
+			log.Printf("discovered %d local IPs, will use %s to announce", len(localIPs), localIPs[0].String())
+		}
+		announceIP = localIPs[0]
 	}
+
+	log.Printf("using %q as announce IP", announceIP.String())
 
 	nodeServer, err := nodeserver.NewNodeServerLogic(
 		nodeID,
 		[]tasks.Calculator{localizationCalculator},
 		filteredEndpoints,
-		tasks.Endpoint{IP: localIPs[0], Port: uint16(port)},
+		tasks.Endpoint{IP: announceIP, Port: uint16(port)},
 		configFile.MainConfigBlock.NodeServerConfig)
 	if err != nil {
 		log.Fatal(err)
