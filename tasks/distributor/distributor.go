@@ -108,6 +108,10 @@ type Config struct {
 	// to a node if no value was given in the request or the value was
 	// invalid.
 	DefaultNumWant int `yaml:"default_num_want"`
+
+	// Debug determines whether or not debug information about known nodes
+	// will be printed.
+	Debug bool
 }
 
 // NewDistributorLogic creates a new TaskDistributor.
@@ -158,8 +162,9 @@ func NewDistributorLogic(id pyme.NodeID, cfg Config) tasks.TaskDistributor {
 		}
 	}()
 
-	// debugging...
-	go toReturn.nodeStatisticsDisplayLoop()
+	if cfg.Debug {
+		go toReturn.nodeStatisticsDisplayLoop()
+	}
 
 	return toReturn
 }
