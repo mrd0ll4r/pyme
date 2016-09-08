@@ -1,7 +1,9 @@
 package tasks
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
-
-	"fmt"
 
 	"github.com/mrd0ll4r/pyme"
 )
@@ -336,7 +336,10 @@ func (s *HTTPNodeServer) handleGetTasks(r *http.Request, p httprouter.Params) (i
 		return 400, nil, errors.Wrap(err, "unable to determine worker ID")
 	}
 
-	task, err := s.s.GetTask(workerID)
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	task, err := s.s.GetTask(ctx, workerID)
 	if err != nil {
 		return 400, nil, err
 	}

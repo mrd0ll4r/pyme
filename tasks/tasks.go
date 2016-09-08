@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -260,7 +261,7 @@ type AnnounceResponse struct {
 type NodeServer interface {
 	// GetTask gets a task to be executed by a worker.
 	// This is typically called by a worker.
-	GetTask(WorkerID) (Task, error)
+	GetTask(context.Context, WorkerID) (Task, error)
 
 	// HandIn notifies the task server that the execution of the task with
 	// the given TaskID is finished.
