@@ -1,6 +1,7 @@
 package nodeserver
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,7 +39,8 @@ type timestampedTask struct {
 }
 
 type taskContainer struct {
-	tasks []tasks.Task
+	tasks     []tasks.Task
+	timestamp time.Time
 	sync.Mutex
 }
 
@@ -163,10 +165,10 @@ func NewNodeServerLogic(id pyme.NodeID, calculators []tasks.Calculator, distribu
 }
 
 func (t *nodeServerLogic) collectGarbage(cutoff time.Time) {
-	t.runningTasksLock.Lock()
-	defer t.runningTasksLock.Unlock()
 	log.Printf("running GC, collecting tasks given out before %s", cutoff.String())
 	collected := 0
+
+	t.runningTasksLock.Lock()
 	for id, task := range t.runningTasks {
 		if task.timestamp.Before(cutoff) {
 			delete(t.runningTasks, id)
@@ -174,6 +176,24 @@ func (t *nodeServerLogic) collectGarbage(cutoff time.Time) {
 			collected++
 		}
 	}
+	t.runningTasksLock.Unlock()
+
+	log.Printf("collecting stale worker queues that were not active after %s", cutoff.String())
+
+	t.tasksToExecuteLocallyLock.Lock()
+	for _, container := range t.tasksToExecuteLocally {
+		container.Lock()
+		if container.timestamp.Before(cutoff) {
+			for _, task := range container.tasks {
+				t.handInsToReport <- handInEntry{taskID: task.ID, status: tasks.NotExecuted}
+				collected++
+			}
+			container.tasks = container.tasks[:0]
+		}
+		container.Unlock()
+	}
+	t.tasksToExecuteLocallyLock.Unlock()
+
 	log.Printf("GC finished, handed in %d tasks as not executed", collected)
 }
 
@@ -258,20 +278,24 @@ func (t *nodeServerLogic) getOrCreateContainer(w tasks.WorkerID) *taskContainer 
 	return container
 }
 
-func (t *nodeServerLogic) GetTask(w tasks.WorkerID) (tasks.Task, error) {
+func (t *nodeServerLogic) GetTask(ctx context.Context, w tasks.WorkerID) (tasks.Task, error) {
 	container := t.getOrCreateContainer(w)
 	container.Lock()
-	defer container.Unlock()
 
 	if len(container.tasks) > 0 {
 		task := container.tasks[0]
 		container.tasks = container.tasks[1:]
+		container.timestamp = time.Now()
+		container.Unlock()
 		t.markRunning(task)
 		return task, nil
 	}
+	container.Unlock()
 
 request:
 	select {
+	case <-ctx.Done():
+		return tasks.Task{}, errors.New("timeout/canceled")
 	case <-t.shutdown:
 		return tasks.Task{}, errors.New("shutting down")
 	default:
@@ -302,7 +326,10 @@ request:
 		goto request
 	}
 
+	container.Lock()
 	container.tasks = tasks[1:]
+	container.timestamp = time.Now()
+	container.Unlock()
 
 	t.markRunning(tasks[0])
 	return tasks[0], nil

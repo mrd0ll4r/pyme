@@ -30,7 +30,9 @@ nodeserver:
     gc_interval: 1m0s
 # gc_cutoff is the maximum age for a task that is marked as running on a local
 # worker before it gets collected by the next GC run.
-    gc_cutoff: 5m0s
+# It also is the maximum age of a queu for a worker, i.e. if no worker requested
+# a task from that queue for the given time.
+    gc_cutoff: 2m0s
 # announce_interval is the interval to sleep between announcing to all known
 # distributors.
     announce_interval: 3s
