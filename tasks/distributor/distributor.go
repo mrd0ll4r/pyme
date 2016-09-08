@@ -119,6 +119,7 @@ func NewDistributorLogic(id pyme.NodeID, cfg Config) tasks.TaskDistributor {
 		tasksToRate:            make(chan tasks.Task),
 		incomingTasks:          make(chan tasks.Task),
 		ratedTasksToDistribute: make(chan ratedTask),
+		failCounter:            make(map[tasks.TaskID]int),
 		queueStatistics: queueStatisticsContainer{
 			queues: make(map[string]*extendedQueueStatistics),
 		},
