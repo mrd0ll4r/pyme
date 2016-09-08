@@ -52,9 +52,9 @@ func (c *localizationCalculator) Calculate(t tasks.Task) (float64, error) {
 
 	tmp := ""
 	if strings.HasSuffix(framesURI, "/") {
-		tmp = fmt.Sprintf("%sframe%d.pzf", framesURI, frame)
+		tmp = fmt.Sprintf("%sframe%05d.pzf", framesURI, frame)
 	} else {
-		tmp = fmt.Sprintf("%s/frame%d.pzf", framesURI, frame)
+		tmp = fmt.Sprintf("%s/frame%05d.pzf", framesURI, frame)
 	}
 
 	frameURI, err := url.Parse(tmp)
