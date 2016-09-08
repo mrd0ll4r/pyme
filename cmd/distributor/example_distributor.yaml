@@ -1,15 +1,43 @@
+# distributor holds the configuration for the distributor command.
 distributor:
+# http_endpoint defines the endpoint to run the HTTP API on.
   http_endpoint: 0.0.0.0:1234
+# http_print_debug_logs determines whether or not to log all HTTP requests.
+# Note that this still only logs requests that actually pass the application.
+# If a request fails because it uses a path the application doesn't handle, it
+# will not be logged.
   http_print_debug_logs: false
+# use_mdns determines whether to announce on mDNS.
   use_mdns: false
+# logic holds the configuration for the distributor logic.
   logic:
+# max_allowed_fails defines the maximum amount of times a task is allowed to
+# be retried after a failure.
     max_allowed_fails: 5
+# node_timeout is the duration after which a node will be assumed to be
+# defunct if it has not announced.
     node_timeout: 10s
+# max_parallel_rate_requests is the maximum number of HTTP requests that can
+# be used for rating requests simultaneously per node.
     max_parallel_rate_requests: 10
+# rating_buffer_size is the size of the buffer for ratings to send out.
     rating_buffer_size: 50
+# rating_buffer_flush_interval is the duration after which a rating buffer
+# will be flushed to a node if no new rating requests arrive.
     rating_buffer_flush_interval: 1s
+# queue_stats_ttl defines the duration for which queue statistics are kept.
     queue_stats_ttl: 24h0m0s
+# queue_stats_gc_interval is the interval between collecting old queue
+# statistics.
     queue_stats_gc_interval: 2m0s
+# rate_request_timeout is the maximum amount of time to wait for a rating.
+# Note that ratings are sent out to all nodes in parallel, so we collect all
+# ratings we can get in this amount of time.
     rate_request_timeout: 3s
+# http_client_timeout is the request timeout for the HTTP client used to make
+# rating requests.
+# Make sure this is higher than rating_request_timeout.
     http_client_timeout: 10s
+# default_num_want is the default chunk size for handing out tasks to a node
+# if no value was given in the request or the value was invalid.
     default_num_want: 50

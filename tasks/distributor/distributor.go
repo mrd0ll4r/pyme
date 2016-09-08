@@ -67,25 +67,46 @@ type distributorLogic struct {
 
 // Config is the configuration of a Distributor.
 type Config struct {
-	// 5
+	// MaxAllowedFails defines the maximum amount of times a task is allowed
+	// to be retried after a failure.
 	MaxAllowedFails int `yaml:"max_allowed_fails"`
-	// 10s
+
+	// NodeTimeout is the duration after which a node will be assumed to be
+	// defunct if it has not announced.
 	NodeTimeout time.Duration `yaml:"node_timeout"`
-	// 10
+
+	// MaxParallelRateRequests is the maximum number of HTTP requests that
+	// can be used for rating requests simultaneously per node.
 	MaxParallelRateRequests int `yaml:"max_parallel_rate_requests"`
-	// 50
+
+	// RatingBufferSize is the size of the buffer for ratings to send out.
 	RatingBufferSize int `yaml:"rating_buffer_size"`
-	// 1s
+
+	// RatingBufferFlushInterval is the duration after which a rating buffer
+	// will be flushed to a node if no new rating requests arrive.
 	RatingBufferFlushInterval time.Duration `yaml:"rating_buffer_flush_interval"`
-	// 10h
+
+	// QueueStatsTTL defines the duration for which queue statistics are
+	// kept.
 	QueueStatsTTL time.Duration `yaml:"queue_stats_ttl"`
-	// 1m
+
+	// QueueStatsGCInterval is the interval between collecting old queue
+	// statistics.
 	QueueStatsGCInterval time.Duration `yaml:"queue_stats_gc_interval"`
-	// 3s
+
+	// RatingTimeout is the maximum amount of time to wait for a rating.
+	// Note that ratings are sent out to all nodes in parallel, so we
+	// collect all ratings we can get in this amount of time.
 	RatingTimeout time.Duration `yaml:"rate_request_timeout"`
-	// 10s
+
+	// HTTPClientTimeout is the request timeout for the HTTP client
+	// used to make rating requests.
+	// Make sure this is higher than RatingTimeout.
 	HTTPClientTimeout time.Duration `yaml:"http_client_timeout"`
-	// 50
+
+	// DefaultNumWant is the default chunk size for handing out tasks
+	// to a node if no value was given in the request or the value was
+	// invalid.
 	DefaultNumWant int `yaml:"default_num_want"`
 }
 

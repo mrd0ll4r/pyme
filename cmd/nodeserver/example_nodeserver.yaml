@@ -1,18 +1,50 @@
+# nodeserver holds the configuration for the nodeserver command.
 nodeserver:
+# http_endpoint defines the endpoint to run the HTTP API on.
   http_endpoint: 0.0.0.0:1337
+# http_print_debug_logs determines whether or not to log all HTTP requests.
+# Note that this still only logs requests that actually pass the application.
+# If a request fails because it uses a path the application doesn't handle, it
+# will not be logged.
   http_print_debug_logs: false
+# use_mdns defines whether or not to search for distributors on mDNS.
   use_mdns: false
+# announce_ip can be used to override the IP that is reported to a distributor
+# when announcing.
+# Note that 0.0.0.0 has the special meaning of using whatever IP was used to
+# make the request as the node's IP.
   announce_ip: 0.0.0.0
+# distributors lists addresses of distributors to use.
   distributors:
   - 10.150.7.1:1234
+# pyme_cluster_rater holds the configuration for the rater for pyme-cluster URIs
   pyme_cluster_rater:
+# data_server_root_dir is the root directory of the PYME HTTPDataServer on the
+# local machine.
+# When pyme-cluster URIs are rated, the rater will construct a path based on
+# the URI relative to this directory and then check if the file is present.
     data_server_root_dir: /mnt/storage/pyme
+# logic holds the configuration for the nodeserver logic.
   logic:
+# gc_interval is the interval to sleep between garbage-collecting stale tasks.
     gc_interval: 1m0s
+# gc_cutoff is the maximum age for a task that is marked as running on a local
+# worker before it gets collected by the next GC run.
     gc_cutoff: 5m0s
+# announce_interval is the interval to sleep between announcing to all known
+# distributors.
     announce_interval: 3s
+# hand_in_buffer_size is the size of the buffer for hand-ins.
     hand_in_buffer_size: 50
+# hand_in_buffer_flush_interval is the duration after which the hand-in buffer
+# will be flushed if no new hand-ins arrive.
     hand_in_buffer_flush_interval: 3s
+# num_want_tasks is the number of tasks to request from a distributor per chunk.
     num_want_tasks: -1
+# get_tasks_long_polling_timeout is the long-polling timeout to send to a
+# distributor when getting tasks.
     get_tasks_long_polling_timeout: 10s
+# debug controls whether or not to print debug information.
+# There is no guarantee about the correctness of this information, or even about
+# it being printed at all.
     debug: false
