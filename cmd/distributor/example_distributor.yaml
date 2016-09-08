@@ -41,3 +41,6 @@ distributor:
 # default_num_want is the default chunk size for handing out tasks to a node
 # if no value was given in the request or the value was invalid.
     default_num_want: 50
+# debug determines whether or not debug information about known nodes will be
+# printed.
+    debug: false
