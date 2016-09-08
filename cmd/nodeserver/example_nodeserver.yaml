@@ -15,3 +15,4 @@ nodeserver:
     hand_in_buffer_flush_interval: 3s
     num_want_tasks: -1
     get_tasks_long_polling_timeout: 10s
+    debug: false

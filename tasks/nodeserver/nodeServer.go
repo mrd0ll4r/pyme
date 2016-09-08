@@ -67,20 +67,33 @@ type nodeServerLogic struct {
 
 // Config models the configuration of a NodeServer.
 type Config struct {
-	// 1m
+	// GCInterval is the interval to sleep between GC runs.
 	GCInterval time.Duration `yaml:"gc_interval"`
-	// 2m
+
+	// GCCutoff is the maximum age for a task before it gets collected
+	// by the next GC run.
 	GCCutoff time.Duration `yaml:"gc_cutoff"`
-	// 3s
+
+	// AnnounceInterval is the interval to sleep between announcing to all
+	// known distributors.
 	AnnounceInterval time.Duration `yaml:"announce_interval"`
-	// 50
+
+	// HandInBufferSize is the size of the buffer for hand-ins.
 	HandInBufferSize int `yaml:"hand_in_buffer_size"`
-	// 3s
+
+	// HandInFlushInterval is the interval at which to flush the hand-in
+	// buffer if no new hand-in was received during that time.
 	HandInFlushInterval time.Duration `yaml:"hand_in_buffer_flush_interval"`
-	// -1
+
+	// NumWantTasks is the amount of tasks to request from a distributor.
 	NumWantTasks int `yaml:"num_want_tasks"`
-	// 10
+
+	// GetTasksLongPollingTimeout is the timeout to specify when
+	// long-polling for tasks at a distributor.
 	GetTaskLongPollingTimeout time.Duration `yaml:"get_tasks_long_polling_timeout"`
+
+	// Debug specifies whether or not to write debug logs.
+	Debug bool `yaml:"debug"`
 }
 
 // NewNodeServerLogic creates a new NodeServer.
@@ -126,6 +139,25 @@ func NewNodeServerLogic(id pyme.NodeID, calculators []tasks.Calculator, distribu
 			toReturn.collectGarbage(time.Now().Add(-cfg.GCCutoff))
 		}
 	}()
+
+	if cfg.Debug {
+		go func() {
+			for {
+				time.Sleep(2 * time.Second)
+				toReturn.runningTasksLock.RLock()
+				fmt.Printf("have %d tasks marked as currently running locally\n", len(toReturn.runningTasks))
+				toReturn.runningTasksLock.RUnlock()
+				toReturn.tasksToExecuteLocallyLock.RLock()
+				fmt.Printf("tracking %d local worders:\n", len(toReturn.tasksToExecuteLocally))
+				for worker, container := range toReturn.tasksToExecuteLocally {
+					container.Lock()
+					fmt.Printf("\thave %3d tasks waiting to be executed by worker %20s\n", len(container.tasks), string(worker))
+					container.Unlock()
+				}
+				toReturn.tasksToExecuteLocallyLock.RUnlock()
+			}
+		}()
+	}
 
 	return toReturn, nil
 }
