@@ -56,6 +56,12 @@ var ErrNoPort = errors.New("no port")
 // ErrInvalidPort is returned if an invalid port was specified.
 var ErrInvalidPort = errors.New("invalid port")
 
+// ErrNoNumWant is returned if no numWant was specified.
+var ErrNoNumWant = errors.New("no numWant")
+
+// ErrInvalidNumWant is returned if an invalid numWant was specified.
+var ErrInvalidNumWant = errors.New("invalid numWant")
+
 // ErrNoTimeout is returned if no timeout was specified.
 var ErrNoTimeout = errors.New("no timeout")
 
@@ -227,9 +233,12 @@ func (s *HTTPDistributorServer) handleGetTasks(r *http.Request, p httprouter.Par
 		return 400, nil, errors.Wrap(err, "unable to determine timeout")
 	}
 
-	// TODO extract numWant
+	numWant, err := getNumWant(r)
+	if err != nil {
+		return 400, nil, errors.Wrap(err, "unable to determine numWant")
+	}
 
-	tasks, err := s.s.GetTasks(nodeID, -1, timeout)
+	tasks, err := s.s.GetTasks(nodeID, numWant, timeout)
 	if err != nil {
 		return 400, nil, err
 	}
@@ -462,6 +471,20 @@ func getPort(r *http.Request) (uint16, error) {
 	}
 
 	return uint16(p), nil
+}
+
+func getNumWant(r *http.Request) (int, error) {
+	n := r.URL.Query().Get("numWant")
+	if n == "" {
+		return 0, ErrNoNumWant
+	}
+
+	p, err := strconv.Atoi(n)
+	if err != nil {
+		return 0, ErrInvalidNumWant
+	}
+
+	return p, nil
 }
 
 func getTimeout(r *http.Request) (time.Duration, error) {
