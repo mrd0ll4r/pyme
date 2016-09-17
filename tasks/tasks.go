@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -259,9 +258,9 @@ type AnnounceResponse struct {
 
 // NodeServer describes the node-local server for task distribution.
 type NodeServer interface {
-	// GetTask gets a task to be executed by a worker.
-	// This is typically called by a worker.
-	GetTask(context.Context, WorkerID) (Task, error)
+	// GetTasks gets up to numWant task to be executed by a worker.
+	// numWant <= 0 defaults to one task.
+	GetTasks(id WorkerID, numWant int) ([]Task, error)
 
 	// HandIn notifies the task server that the execution of the task with
 	// the given TaskID is finished.

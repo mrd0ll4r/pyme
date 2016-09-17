@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -345,15 +344,17 @@ func (s *HTTPNodeServer) handleGetTasks(r *http.Request, p httprouter.Params) (i
 		return 400, nil, errors.Wrap(err, "unable to determine worker ID")
 	}
 
-	ctx, cancel := context.WithCancel(r.Context())
-	defer cancel()
+	numWant, err := getNumWant(r)
+	if err != nil && err != ErrNoNumWant {
+		return 400, nil, errors.Wrap(err, "unable to determine numWant")
+	}
 
-	task, err := s.s.GetTask(ctx, workerID)
+	tasks, err := s.s.GetTasks(workerID, numWant)
 	if err != nil {
 		return 400, nil, err
 	}
 
-	return 200, task, nil
+	return 200, tasks, nil
 }
 
 func (s *HTTPNodeServer) handlePostHandIn(r *http.Request, p httprouter.Params) (int, error) {
