@@ -1,7 +1,6 @@
 package nodeserver
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -278,26 +277,32 @@ func (t *nodeServerLogic) getOrCreateContainer(w tasks.WorkerID) *taskContainer 
 	return container
 }
 
-func (t *nodeServerLogic) GetTask(ctx context.Context, w tasks.WorkerID) (tasks.Task, error) {
+func (t *nodeServerLogic) GetTasks(w tasks.WorkerID, numWant int) ([]tasks.Task, error) {
 	container := t.getOrCreateContainer(w)
 	container.Lock()
 
 	if len(container.tasks) > 0 {
-		task := container.tasks[0]
-		container.tasks = container.tasks[1:]
+		if numWant > len(container.tasks) {
+			goto request
+		}
+
+		tasksToReturn := container.tasks[:numWant]
+		if numWant == len(container.tasks) {
+			container.tasks = make([]tasks.Task, 0)
+		} else {
+			container.tasks = container.tasks[numWant+1:]
+		}
 		container.timestamp = time.Now()
 		container.Unlock()
-		t.markRunning(task)
-		return task, nil
+		t.markRunning(tasksToReturn)
+		return tasksToReturn, nil
 	}
 	container.Unlock()
 
 request:
 	select {
-	case <-ctx.Done():
-		return tasks.Task{}, errors.New("timeout/canceled")
 	case <-t.shutdown:
-		return tasks.Task{}, errors.New("shutting down")
+		return nil, errors.New("shutting down")
 	default:
 	}
 
@@ -308,41 +313,54 @@ request:
 	}
 	t.RUnlock()
 
-	var tasks []tasks.Task
+	var requestedTasks []tasks.Task
 	var err error
+	requestNumWant := t.cfg.NumWantTasks
+	if numWant > requestNumWant {
+		requestNumWant = numWant
+	}
 
 	for _, ep := range endpoints {
-		tasks, err = t.getTasksFromEndpoint(ep)
+		requestedTasks, err = t.getTasksFromEndpoint(ep, requestNumWant)
 		if err != nil {
 			log.Println(err)
 		}
-		if len(tasks) > 0 {
+		if len(requestedTasks) > 0 {
 			break
 		}
 	}
 
-	if len(tasks) == 0 {
+	if len(requestedTasks) == 0 {
 		time.Sleep(time.Second)
 		goto request
 	}
 
 	container.Lock()
-	container.tasks = tasks[1:]
+	container.tasks = append(container.tasks, requestedTasks...)
+	var tasksToReturn []tasks.Task
+	if numWant >= len(container.tasks) {
+		tasksToReturn = container.tasks
+		container.tasks = make([]tasks.Task, 0)
+	} else {
+		tasksToReturn = container.tasks[:numWant]
+		container.tasks = container.tasks[numWant+1:]
+	}
+
 	container.timestamp = time.Now()
 	container.Unlock()
 
-	t.markRunning(tasks[0])
-	return tasks[0], nil
+	t.markRunning(tasksToReturn)
+	return tasksToReturn, nil
 }
 
-func (t *nodeServerLogic) getTasksFromEndpoint(endpoint tasks.Endpoint) ([]tasks.Task, error) {
+func (t *nodeServerLogic) getTasksFromEndpoint(endpoint tasks.Endpoint, numWant int) ([]tasks.Task, error) {
 	var taskList []tasks.Task
 	err := tasks.MakeHTTPAPIRequest(t.c,
 		endpoint,
 		tasks.DistributorGetTasks,
 		url.Values{"timeout": []string{fmt.Sprint(int(t.cfg.GetTaskLongPollingTimeout.Seconds()))},
 			"nodeID":  []string{string(t.id)},
-			"numWant": []string{fmt.Sprint(t.cfg.NumWantTasks)}},
+			"numWant": []string{fmt.Sprint(numWant)}},
 		nil,
 		&taskList)
 	if err != nil {
@@ -352,16 +370,18 @@ func (t *nodeServerLogic) getTasksFromEndpoint(endpoint tasks.Endpoint) ([]tasks
 	return taskList, nil
 }
 
-func (t *nodeServerLogic) markRunning(task tasks.Task) error {
+func (t *nodeServerLogic) markRunning(tasks []tasks.Task) error {
 	t.runningTasksLock.Lock()
 	defer t.runningTasksLock.Unlock()
 
-	if _, ok := t.runningTasks[task.ID]; ok {
-		log.Printf("attempted to mark already running task %s as running", task.ID)
-		return ErrAlreadyRunning
-	}
+	for _, task := range tasks {
+		if _, ok := t.runningTasks[task.ID]; ok {
+			log.Printf("attempted to mark already running task %s as running", task.ID)
+			return ErrAlreadyRunning
+		}
 
-	t.runningTasks[task.ID] = timestampedTask{Task: task, timestamp: time.Now()}
+		t.runningTasks[task.ID] = timestampedTask{Task: task, timestamp: time.Now()}
+	}
 	return nil
 }
 
