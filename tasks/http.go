@@ -74,8 +74,8 @@ func NewHTTPNodeServer(s NodeServer, apiKey string, endpoint string, debug bool)
 		s: s,
 		server: &http.Server{
 			Addr:         endpoint,
-			ReadTimeout:  3600 * time.Second,
-			WriteTimeout: 3600 * time.Second,
+			ReadTimeout:  120 * time.Second,
+			WriteTimeout: 120 * time.Second,
 		},
 	}
 
@@ -118,8 +118,8 @@ func NewHTTPDistributorServer(s TaskDistributor, apiKey string, endpoint string,
 		s: s,
 		server: &http.Server{
 			Addr:         endpoint,
-			ReadTimeout:  3600 * time.Second,
-			WriteTimeout: 3600 * time.Second,
+			ReadTimeout:  120 * time.Second,
+			WriteTimeout: 120 * time.Second,
 		},
 	}
 
