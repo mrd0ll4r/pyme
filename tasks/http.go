@@ -175,6 +175,10 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 		err  error
 	)
 
+	if v4 := endpoint.IP.To4(); v4 != nil {
+		endpoint.IP = v4
+	}
+
 	if len(endpoint.IP) == net.IPv4len {
 		u, err = url.Parse(fmt.Sprintf("http://%s:%d%s", endpoint.IP.String(), endpoint.Port, string(apiMethod.Path)))
 	} else if len(endpoint.IP) == net.IPv6len {
@@ -216,7 +220,6 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 	// This can be nil for weird edge cases with network issues
 	if resp != nil && resp.Body != nil {
 		defer func() {
-
 			err := resp.Body.Close()
 			if err != nil {
 				log.Println(err)
