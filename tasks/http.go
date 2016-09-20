@@ -186,7 +186,6 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 	} else {
 		return ErrInvalidIP
 	}
-
 	if err != nil {
 		return errors.Wrap(err, "unable to build URL")
 	}
@@ -212,7 +211,6 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 	default:
 		panic("API method " + string(apiMethod.Path) + " has invalid HTTP method")
 	}
-
 	if err != nil {
 		return errors.Wrap(err, "unable to perform request")
 	}
@@ -224,7 +222,6 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 			if err != nil {
 				log.Println(err)
 			}
-
 		}()
 
 		res := response{
@@ -246,6 +243,8 @@ func MakeHTTPAPIRequest(c *http.Client, endpoint Endpoint, apiMethod Method, par
 		if !res.Ok {
 			return errors.Wrap(errors.New(res.Error), "remote returned error")
 		}
+	} else {
+		log.Printf("Unexpected resp == nil or resp.Body == nil while requesting %+v on %+v", apiMethod, endpoint)
 	}
 
 	return nil
