@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
-
-	"net"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
