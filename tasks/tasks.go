@@ -330,6 +330,6 @@ type TaskDistributor interface {
 	// does not receive an announce in a set amount of time it presumes
 	// the node defunct.
 	// It will be taken out of the set of active nodes and all tasks
-	// enqueued for this noe will be redistributed.
+	// enqueued for this node will be redistributed.
 	Announce(nodeID pyme.NodeID, ip net.IP, port uint16) (AnnounceResponse, error)
 }
